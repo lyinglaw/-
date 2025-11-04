@@ -12,10 +12,10 @@ from keep_alive import keep_alive
 
 # --- Конфигурация ---
 # Токен берется из Секретов Replit (ключ: BOT_TOKEN)
-BOT_TOKEN = os.environ['8239172264:AAE-u-U-JROo-O9gd_gO7bx-jyqFtOb5gdE']
+BOT_TOKEN = os.environ['BOT_TOKEN']
 
 # ❗️ Вставьте СВОЙ ID администратора (число)
-ADMIN_ID = 6056422825  
+ADMIN_ID = 123456789  
 
 # ❗️ Вставьте ССЫЛКИ на ваши Google Формы
 FORM_LINK_1 = "https://docs.google.com/forms/d/e/ВАША_ПЕРВАЯ_ССЫЛКА/viewform" 
@@ -31,6 +31,16 @@ class AdminAction(CallbackData, prefix="admin"):
 
 router = Router()
 
+@router.message(CommandStart())
+async def cmd_start(message: Message):
+    text = (
+        f"Привет, {message.from_user.full_name}!\n"
+        f"Вот наша стандартная форма обратной связи:\n<b>{FORM_LINK_1}</b>\n\n"
+        "Для <b>специального запроса</b> (партнерство, жалоба и т.д.) "
+        "просто напишите его в этот чат."
+    )
+    await message.answer(text, parse_mode="HTML") # 👈 Добавлен parse_mode="HTML"
+
 @router.message(F.text & ~F.text.startswith('/'))
 async def handle_text_request(message: Message, bot: Bot):
     user_id = message.from_user.id
@@ -39,18 +49,17 @@ async def handle_text_request(message: Message, bot: Bot):
 
     await message.answer("✅ Ваш запрос отправлен на рассмотрение администратору. Ожидайте ответа.")
 
-    # Создаем кнопки для админа:
+    # Создаем кнопки для админа
     builder = InlineKeyboardBuilder()
     
-    # 1. Кнопка "Начать чат" / "Ответить"
-    # URL для открытия чата с пользователем по его ID
+    # Кнопка для ответа (двусторонняя связь)
     chat_url = f"tg://user?id={user_id}" 
     builder.button(
         text="✉️ Ответить пользователю", 
         url=chat_url
     )
     
-    # 2. Кнопки для Формы 2 (одобрить/отклонить)
+    # Кнопки для Формы 2
     builder.button(
         text="✅ Одобрить (Форма 2)", 
         callback_data=AdminAction(action="approve", user_id=user_id).pack()
@@ -63,45 +72,10 @@ async def handle_text_request(message: Message, bot: Bot):
 
     await bot.send_message(
         ADMIN_ID,
-        f"❗️ **Новый запрос** от {user_name} (ID: `{user_id}`)\n\n"
+        f"❗️ <b>Новый запрос</b> от {user_name} (ID: <code>{user_id}</code>)\n\n" # <code> для ID
         f"Текст запроса:\n«{user_text}»",
-        reply_markup=builder.as_markup()
-    )
-
-@router.message(CommandStart())
-async def cmd_start(message: Message):
-    text = (
-        f"Привет, {message.from_user.full_name}!\n"
-        f"Вот наша стандартная форма обратной связи:\n**{FORM_LINK_1}**\n\n"
-        "Для **специального запроса** (партнерство, жалоба и т.д.) "
-        "просто напишите его в этот чат."
-    )
-    await message.answer(text)
-
-@router.message(F.text & ~F.text.startswith('/'))
-async def handle_text_request(message: Message, bot: Bot):
-    user_id = message.from_user.id
-    user_text = message.text
-    user_name = message.from_user.full_name
-
-    await message.answer("✅ Ваш запрос отправлен на рассмотрение администратору. Ожидайте ответа.")
-
-    builder = InlineKeyboardBuilder()
-    builder.button(
-        text="✅ Одобрить (Форма 2)", 
-        callback_data=AdminAction(action="approve", user_id=user_id).pack()
-    )
-    builder.button(
-        text="❌ Отклонить", 
-        callback_data=AdminAction(action="reject", user_id=user_id).pack()
-    )
-    builder.adjust(1) 
-
-    await bot.send_message(
-        ADMIN_ID,
-        f"❗️ **Новый запрос** от {user_name} (ID: `{user_id}`)\n\n"
-        f"Текст запроса:\n«{user_text}»",
-        reply_markup=builder.as_markup()
+        reply_markup=builder.as_markup(),
+        parse_mode="HTML" # 👈 Добавлен parse_mode="HTML"
     )
 
 @router.callback_query(AdminAction.filter())
@@ -112,16 +86,19 @@ async def handle_admin_decision(query: CallbackQuery, callback_data: AdminAction
     await query.message.edit_reply_markup(reply_markup=None)
 
     if action == "approve":
+        # Отправляем пользователю Форму 2. Используем <b> для жирного шрифта.
         await bot.send_message(
             user_id,
-            "🎉 Ваш запрос **одобрен** администратором! Вот специальная форма:\n"
-            f"**{FORM_LINK_2}**"
+            "🎉 Ваш запрос <b>одобрен</b> администратором! Вот специальная форма:\n"
+            f"<b>{FORM_LINK_2}</b>",
+            parse_mode="HTML" # 👈 Добавлен parse_mode="HTML"
         )
-        await query.message.answer(f"✅ Запрос от {user_id} ОДОБРЕН. Форма 2 отправлена.")
+        await query.message.answer(f"✅ Запрос от {user_id} ОДОБРЕН.")
     elif action == "reject":
         await bot.send_message(
             user_id,
-            "К сожалению, ваш запрос был отклонен администратором."
+            "К сожалению, ваш запрос был <b>отклонен</b> администратором.",
+            parse_mode="HTML" # 👈 Добавлен parse_mode="HTML"
         )
         await query.message.answer(f"❌ Запрос от {user_id} ОТКЛОНЕН.")
 
