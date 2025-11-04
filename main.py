@@ -15,7 +15,7 @@ from keep_alive import keep_alive
 BOT_TOKEN = os.environ['8239172264:AAE-u-U-JROo-O9gd_gO7bx-jyqFtOb5gdE']
 
 # ❗️ Вставьте СВОЙ ID администратора (число)
-ADMIN_ID = 123456789  
+ADMIN_ID = 6056422825  
 
 # ❗️ Вставьте ССЫЛКИ на ваши Google Формы
 FORM_LINK_1 = "https://docs.google.com/forms/d/e/ВАША_ПЕРВАЯ_ССЫЛКА/viewform" 
