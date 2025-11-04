@@ -18,8 +18,8 @@ BOT_TOKEN = os.environ['BOT_TOKEN']
 ADMIN_ID = 123456789  
 
 # ❗️ Вставьте ССЫЛКИ на ваши Google Формы
-FORM_LINK_1 = "https://docs.google.com/forms/d/e/ВАША_ПЕРВАЯ_ССЫЛКА/viewform" 
-FORM_LINK_2 = "https://docs.google.com/forms/d/e/ВАША_ВТОРАЯ_ССЫЛКА/viewform" 
+FORM_LINK_1 = "https://docs.google.com/forms/d/e/1FAIpQLSfrdeQ77ZjlfEe2aCwDddi_r6Z5Xx15WQwNJifqJsf9pQiU8g/viewform?usp=dialog" 
+FORM_LINK_2 = "https://forms.gle/rqtxe3c5o875dr8X6" 
 
 logging.basicConfig(level=logging.INFO)
 
