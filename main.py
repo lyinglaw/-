@@ -31,6 +31,43 @@ class AdminAction(CallbackData, prefix="admin"):
 
 router = Router()
 
+@router.message(F.text & ~F.text.startswith('/'))
+async def handle_text_request(message: Message, bot: Bot):
+    user_id = message.from_user.id
+    user_text = message.text
+    user_name = message.from_user.full_name
+
+    await message.answer("✅ Ваш запрос отправлен на рассмотрение администратору. Ожидайте ответа.")
+
+    # Создаем кнопки для админа:
+    builder = InlineKeyboardBuilder()
+    
+    # 1. Кнопка "Начать чат" / "Ответить"
+    # URL для открытия чата с пользователем по его ID
+    chat_url = f"tg://user?id={user_id}" 
+    builder.button(
+        text="✉️ Ответить пользователю", 
+        url=chat_url
+    )
+    
+    # 2. Кнопки для Формы 2 (одобрить/отклонить)
+    builder.button(
+        text="✅ Одобрить (Форма 2)", 
+        callback_data=AdminAction(action="approve", user_id=user_id).pack()
+    )
+    builder.button(
+        text="❌ Отклонить", 
+        callback_data=AdminAction(action="reject", user_id=user_id).pack()
+    )
+    builder.adjust(1) 
+
+    await bot.send_message(
+        ADMIN_ID,
+        f"❗️ **Новый запрос** от {user_name} (ID: `{user_id}`)\n\n"
+        f"Текст запроса:\n«{user_text}»",
+        reply_markup=builder.as_markup()
+    )
+
 @router.message(CommandStart())
 async def cmd_start(message: Message):
     text = (
