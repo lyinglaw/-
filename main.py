@@ -12,7 +12,7 @@ from keep_alive import keep_alive
 
 # --- Конфигурация ---
 # Токен берется из Секретов Replit (ключ: BOT_TOKEN)
-BOT_TOKEN = os.environ['BOT_TOKEN']
+BOT_TOKEN = os.environ['8239172264:AAE-u-U-JROo-O9gd_gO7bx-jyqFtOb5gdE']
 
 # ❗️ Вставьте СВОЙ ID администратора (число)
 ADMIN_ID = 123456789  
